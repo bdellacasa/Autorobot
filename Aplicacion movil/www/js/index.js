@@ -177,8 +177,8 @@ var app =
                             {
                                 if (last_id != jsonp[0].id)
                                 {
-                                    serial.write('C'+'L'+lat_ant+','+lng_ant+'/'+ jsonp[0].lat+','+jsonp[0].lng+'D'+direccion+'*');
-                                    info.innerHTML = 'C'+'L'+lat_ant+','+lng_ant+'/'+ jsonp[0].lat+','+jsonp[0].lng+'D'+direccion;
+                                    serial.write('L'+lat_ant+','+lng_ant+'/'+ jsonp[0].lat+','+jsonp[0].lng+'D'+direccion+'*');
+                                    info.innerHTML = 'L'+lat_ant+','+lng_ant+'/'+ jsonp[0].lat+','+jsonp[0].lng+'D'+direccion;
                                     last_id = jsonp[0].id;
                                 }
                                 else

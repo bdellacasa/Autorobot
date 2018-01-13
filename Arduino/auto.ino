@@ -41,49 +41,32 @@ void loop() {
         Serial.println("ORDEN: Detencion");
         control.Motor(0,1);
       break;
-      case 'C':  
+      case 'L':  
         Serial.println("ORDEN: Dirigirse al destino solicitado");
-        while(!llego){
-          detectarDireccion();
-          while (!Serial.available());  //Se espera un caractér hasta que la aplicacion web forme el mensaje y lo envie
-          aux=Serial.read();
-          delay(5);
-          if(aux=='L')
-            recibirCadena('L'); //Se recibe cadena LARGA
-          else if(aux=='S')
-            recibirCadena('S'); //Se recibe cadena CORTA
-          else //El usuario luego de presionar el mapa y antes de llegar el auto a destino, presiona un boton
-            switch (aux){
-              case 'W': //Avanzo (velocidad, direccion)
-                Serial.println("ORDEN: Avance");
-                control.Motor(255,1);  
-              break;
-              case 'B': //Atrás
-                Serial.println("ORDEN: Retroceso");
-                control.Motor(-255,1); 
-              break;
-              case 'A'://Giro a la izquierda
-                Serial.println("ORDEN: Giro a la izquierda");
-                control.Motor(255,-100);
-              break;
-              case 'D'://Giro a la derecha
-                Serial.println("ORDEN: Giro a la derecha");
-                control.Motor(255,100);
-              break;
-              case 'P'://Detención
-                Serial.println("ORDEN: Detencion");
-                control.Motor(0,1);
-              break;
-            } //end 2do switch
-        }//while(!llego)
-    break;
-  }//end 1er switch  
+        detectarDireccion();
+        while (!Serial.available());  //Se espera un caractér hasta que la aplicacion web forme el mensaje y lo envie
+        recibirCadena('L'); //Se recibe cadena LARGA
+      break;
+      case 'S':
+        Serial.println("ORDEN: Dirigirse al destino solicitado");
+        detectarDireccion();
+        while (!Serial.available());  //Se espera un caractér hasta que la aplicacion web forme el mensaje y lo envie
+        recibirCadena('S'); //Se recibe cadena CORTA
+      break;
+  }//end switch  
 }//end if(serial.available)
 }//end loop
 
+//Avanzo hacia adelante 0,5 segundos para que sea detectado por el gps y así conocer la dirección, luego se detiene 
+void detectarDireccion(){
+   control.Motor(100,1);  
+   delay(200);
+   control.Motor(0,1);
+}
+
 void recibirCadena(unsigned char tipoCadena){
     //cadena corta ->Slatact,longact/Ddir*          
-    //cadena larga ->//CLlatitud actual,longitudactual/latituddestino,longdestinoDdir*
+    //cadena larga ->//Llatitud actual,longitudactual/latituddestino,longdestinoDdir*
     //Almaceno latitud actual -> almacena de a un caracter a la vez porque el tipo string no podia ser convertido luego a float
     i=0;
     aux=Serial.read();
@@ -142,25 +125,30 @@ void recibirCadena(unsigned char tipoCadena){
     
     lat_actD=atof(lat_actS);
     long_actD=atof(long_actS);
-    dirD=atof(dirS);
+    dirD=atoi(dirS);
 
     Serial.println("-----------------------------------------------------------------------------");  
     Serial.print("Latitud actual  : "); Serial.println(lat_actS);
     Serial.print("Longitud actual : "); Serial.println(long_actS);
-    Serial.print("Latitud destino : "); Serial.println(lat_nueS);
-    Serial.print("Longitud destino: "); Serial.println(long_nueS);
+    if(tipoCadena=='L'){
+      Serial.print("Latitud destino : "); Serial.println(lat_nueS);
+      Serial.print("Longitud destino: "); Serial.println(long_nueS);
+    }
     Serial.print("Direccion actual: "); Serial.println(dirS);
     Serial.println("-----------------------------------------------------------------------------");  
+
+    //Limpio diversos vectores de recepción de caracteres para próximas cadenas entrantes
+    for(unsigned char j=0;j<5;j++) 
+      dirS[j]='\0';
+    for(unsigned char j=0;j<11;j++){ 
+      lat_actS[j]='\0';
+      lat_nueS[j]='\0';
+      long_actS[j]='\0';
+      long_nueS[j]='\0';
+    }
+      
     mover(lat_actD,lat_nueD,long_actD,long_nueD,dirD);    
 }
-
-//Avanzo hacia adelante 0,5 segundos para que sea detectado por el gps y así conocer la dirección, luego se detiene 
-void detectarDireccion(){
-   control.Motor(100,1);  
-   delay(200);
-   control.Motor(0,1);
-}
-
 
 //Mueve el auto hasta el lugar destino moviéndose primero en latitud (horizontal) y luego en longitud (vertical)
 void mover(float lat_act, float lat_nue,float long_act,float long_nue, short int dir){
@@ -275,3 +263,4 @@ Serial.println("El auto se ha detenido.");
 Serial.println("Esperando nuevo mensaje con localizacion actual");
 }
 }
+
