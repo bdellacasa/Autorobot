@@ -45,6 +45,11 @@ void loop() {
         Serial.println("ORDEN: Dirigirse al destino solicitado");
         detectarDireccion();
         while (!Serial.available());  //Se espera un caractér hasta que la aplicacion web forme el mensaje y lo envie
+        //Limpio diversos vectores de recepción de caracteres para próximas cadenas entrantes
+        for(unsigned char j=0;j<11;j++){ 
+          lat_nueS[j]='\0';
+          long_nueS[j]='\0';
+        }
         recibirCadena('L'); //Se recibe cadena LARGA
       break;
       case 'S':
@@ -130,10 +135,9 @@ void recibirCadena(unsigned char tipoCadena){
     Serial.println("-----------------------------------------------------------------------------");  
     Serial.print("Latitud actual  : "); Serial.println(lat_actS);
     Serial.print("Longitud actual : "); Serial.println(long_actS);
-    if(tipoCadena=='L'){
-      Serial.print("Latitud destino : "); Serial.println(lat_nueS);
-      Serial.print("Longitud destino: "); Serial.println(long_nueS);
-    }
+    Serial.print("Latitud destino : "); Serial.println(lat_nueS);
+    Serial.print("Longitud destino: "); Serial.println(long_nueS);
+    
     Serial.print("Direccion actual: "); Serial.println(dirS);
     Serial.println("-----------------------------------------------------------------------------");  
 
@@ -142,9 +146,7 @@ void recibirCadena(unsigned char tipoCadena){
       dirS[j]='\0';
     for(unsigned char j=0;j<11;j++){ 
       lat_actS[j]='\0';
-      lat_nueS[j]='\0';
       long_actS[j]='\0';
-      long_nueS[j]='\0';
     }
       
     mover(lat_actD,lat_nueD,long_actD,long_nueD,dirD);    
